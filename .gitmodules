@@ -6,4 +6,4 @@
 	url = git@github.com:KAIST-Student-Culture-Space-Committee/scspace-server.git
 [submodule "packages/depot"]
 	path = packages/depot
-	url = git@github.com:KAIST-Student-Culture-Space-Committee/scspace-server.git
+	url = git@github.com:KAIST-Student-Culture-Space-Committee/scspace-depot.git
