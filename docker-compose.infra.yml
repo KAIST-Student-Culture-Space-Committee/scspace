@@ -1,7 +1,8 @@
-# version: "3.8"
+version: "3.9"
+
 services:
   mysql:
-    image: mysql:latest
+    image: mysql:8.0
     container_name: scspace-mysql
     restart: always
     env_file:
@@ -11,16 +12,24 @@ services:
       MYSQL_DATABASE: ${MYSQL_NAME}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PWD}
-      TZ: Asia/Seoul # 시간대 설정
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # UTF-8 인코딩 설정
+      TZ: Asia/Seoul
+    command: >-
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./infra/db/my.cnf:/etc/mysql/conf.d/override.cnf:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - scspace-infra-network
 
   redis:
-    image: redis:latest
+    image: redis:7
     container_name: scspace-redis
     restart: always
     environment:
@@ -28,13 +37,18 @@ services:
     command: redis-server --requirepass ${REDIS_PWD}
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PWD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - scspace-infra-network
 
-
 networks:
   scspace-infra-network:
-    external: true
+    name: scspace-infra-network
+    driver: bridge
 
 volumes:
   mysql-data:

@@ -1,0 +1,12 @@
+.git
+node_modules
+.pnpm-store
+.pnpm
+.tmp
+.DS_Store
+packages/*/node_modules
+packages/*/.next
+packages/*/dist
+packages/server/uploads/public
+packages/server/uploads/tmp
+infra/nginx/certs

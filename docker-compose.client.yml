@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  client:
+    container_name: scspace-client
+    build:
+      context: .
+      dockerfile: packages/client/Dockerfile
+      target: ${CLIENT_BUILD_TARGET:-runner}
+    image: scspace-client:${CLIENT_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${CLIENT_NODE_ENV:-production}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      PORT: ${CLIENT_APP_PORT}
+    expose:
+      - "${CLIENT_APP_PORT}"
+    networks:
+      - scspace-internal-network
+
+networks:
+  scspace-internal-network:
+    external: true
+    name: scspace-internal-network

@@ -1,47 +1,64 @@
-# version: "3.8"
+version: "3.9"
+
 services:
+  client:
+    image: scspace-client:${CLIENT_IMAGE_TAG:-latest}
+    container_name: scspace-client
+    restart: always
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      PORT: ${CLIENT_APP_PORT:-3000}
+    networks:
+      - scspace-internal-network
+
+  backend:
+    image: scspace-server:${SERVER_IMAGE_TAG:-latest}
+    container_name: scspace-server
+    restart: always
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      SERVER_PORT: ${SERVER_APP_PORT:-3001}
+      DB_HOST: ${SERVER_DB_HOST:-scspace-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+    networks:
+      - scspace-internal-network
+      - scspace-infra-network
+
   nginx:
-    image: nginx
-    container_name: scspace-nginx-container
+    image: nginx:alpine
+    container_name: scspace-nginx
     restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    environment:
-      - BASIC_URL="http://localhost"
-    extra_hosts:
-      - "host.docker.internal:host-gateway" # Linux에서 Docker 호스트 IP를 매핑
+      - ./infra/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/certbot/conf:/etc/letsencrypt:ro
+      - ./infra/certbot/www:/var/www/certbot:ro
+    command: >-
+      /bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'
     networks:
-      - scspace_network
+      - scspace-internal-network
 
-  mysql:
-    image: mysql:latest
-    container_name: scspace-mysql-container
+  certbot:
+    image: certbot/certbot
+    container_name: scspace-certbot
     restart: always
-    env_file:
-      - .env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PWD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PWD}
-      TZ: Asia/Seoul # 시간대 설정
-    ports:
-      - "${DB_PORT}:3306" # .env 파일과 같은지 체크하기
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # UTF-8 인코딩 설정
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - scspace_network
+      - ./infra/certbot/conf:/etc/letsencrypt
+      - ./infra/certbot/www:/var/www/certbot
+    entrypoint: >-
+      /bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'
 
 networks:
-  scspace_network:
+  scspace-internal-network:
     driver: bridge
-
-volumes:
-  mysql-data:
-    driver: local
+    name: scspace-internal-network
+  scspace-infra-network:
+    external: true
+    name: scspace-infra-network

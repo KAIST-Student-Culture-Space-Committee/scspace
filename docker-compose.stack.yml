@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  mysql:
+    extends:
+      file: docker-compose.infra.yml
+      service: mysql
+  redis:
+    extends:
+      file: docker-compose.infra.yml
+      service: redis
+  server:
+    extends:
+      file: docker-compose.server.yml
+      service: server
+    depends_on:
+      - mysql
+      - redis
+  client:
+    extends:
+      file: docker-compose.client.yml
+      service: client
+    depends_on:
+      - server
+  edge:
+    extends:
+      file: docker-compose.edge.yml
+      service: edge
+    depends_on:
+      - client
+      - server
+  certbot:
+    extends:
+      file: docker-compose.edge.yml
+      service: certbot
+    depends_on:
+      - edge
+
+networks:
+  scspace-internal-network:
+    external: true
+    name: scspace-internal-network
+  scspace-infra-network:
+    external: true
+    name: scspace-infra-network
