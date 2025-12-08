@@ -1,0 +1,9 @@
+[submodule "packages/client"]
+	path = packages/client
+	url = git@github.com:KAIST-Student-Culture-Space-Committee/scspace-client.git
+[submodule "packages/server"]
+	path = packages/server
+	url = git@github.com:KAIST-Student-Culture-Space-Committee/scspace-server.git
+[submodule "packages/depot"]
+	path = packages/depot
+	url = git@github.com:KAIST-Student-Culture-Space-Committee/scspace-server.git
