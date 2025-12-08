@@ -1,0 +1,47 @@
+# version: "3.8"
+services:
+  nginx:
+    image: nginx
+    container_name: scspace-nginx-container
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    environment:
+      - BASIC_URL=${BASIC_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Linux에서 Docker 호스트 IP를 매핑
+    networks:
+      - scspace_network
+
+  mysql:
+    image: mysql:latest
+    container_name: scspace-mysql-container
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PWD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PWD}
+      TZ: Asia/Seoul # 시간대 설정
+    ports:
+      - "${DB_PORT}:3306" # .env 파일과 같은지 체크하기
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # UTF-8 인코딩 설정
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - scspace_network
+
+networks:
+  scspace_network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local

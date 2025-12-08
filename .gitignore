@@ -1,0 +1,8 @@
+node_modules
+.env
+exported_csv_files
+processed_csv_files
+db_venv
+packages/server/src/db/migrations/*
+.DS_Store
+.idea

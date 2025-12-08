@@ -1,0 +1,7 @@
+packages:
+  - packages/*
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - '@tailwindcss/oxide'
+onlyBuiltDependencies:
+  - unrs-resolver
