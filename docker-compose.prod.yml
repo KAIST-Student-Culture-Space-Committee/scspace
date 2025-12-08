@@ -11,7 +11,7 @@ services:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     environment:
-      - BASIC_URL=${BASIC_URL}
+      - BASIC_URL="http://localhost"
     extra_hosts:
       - "host.docker.internal:host-gateway" # Linux에서 Docker 호스트 IP를 매핑
     networks:

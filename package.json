@@ -23,11 +23,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-<<<<<<< HEAD
-  "packageManager": "pnpm@10.16.1",
-=======
   "packageManager": "pnpm@10.21.0",
->>>>>>> dac77ac (Feat [Article]: fetch order in preview)
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/eslint-plugin-query": "^5.83.1",
