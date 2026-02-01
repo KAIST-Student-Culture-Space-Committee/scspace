@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  edge:
+  nginx:
     container_name: scspace-nginx
     image: nginx:1.27
     restart: unless-stopped
