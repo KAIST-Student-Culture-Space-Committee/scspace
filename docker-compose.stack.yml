@@ -43,3 +43,9 @@ networks:
   scspace-infra-network:
     external: true
     name: scspace-infra-network
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
