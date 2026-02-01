@@ -6,17 +6,16 @@ services:
     build:
       context: .
       dockerfile: packages/client/Dockerfile
-      target: ${CLIENT_BUILD_TARGET:-runner}
-    image: scspace-client:${CLIENT_IMAGE_TAG:-latest}
+    image: scspace-client:latest
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      NODE_ENV: ${CLIENT_NODE_ENV:-production}
+      NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      PORT: ${CLIENT_APP_PORT}
+      PORT: ${CLIENT_PORT}
     expose:
-      - "${CLIENT_APP_PORT}"
+      - "${CLIENT_PORT}"
     networks:
       - scspace-internal-network
 

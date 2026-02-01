@@ -6,19 +6,18 @@ services:
     build:
       context: .
       dockerfile: packages/server/Dockerfile
-      target: ${SERVER_BUILD_TARGET:-runner}
-    image: scspace-server:${SERVER_IMAGE_TAG:-latest}
+    image: scspace-server:latest
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      NODE_ENV: ${SERVER_NODE_ENV:-production}
-      SERVER_PORT: ${SERVER_APP_PORT:-3001}
-      DB_HOST: ${SERVER_DB_HOST:-scspace-mysql}
-      DB_PORT: ${DB_PORT:-3306}
+      NODE_ENV: production
+      SERVER_PORT: ${SERVER_PORT:-3001}
+      MYSQL_HOST: ${MYSQL_HOST:-scspace-mysql}
+      MYSQL_PORT: ${DB_PORT:-3306}
       TZ: Asia/Seoul
     expose:
-      - "${SERVER_APP_PORT:-3001}"
+      - "${SERVER_PORT:-3001}"
     volumes:
       - ./packages/server/uploads:/workspace/packages/server/uploads
     networks:
