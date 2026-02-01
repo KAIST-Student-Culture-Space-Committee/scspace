@@ -1,6 +1,92 @@
-# scspace
+# SCSpace Monorepo
 
-## Dockerized stacks
+SCSpace is a full-stack monorepo application for managing space reservations, rentals, and community features.
+It is built with **Next.js 15** (Frontend) and **NestJS** (Backend), using **pnpm workspaces** for package management.
+
+## 🛠 Tech Stack
+
+### **Frontend (`packages/client`)**
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Styling:** Chakra UI + Emotion
+- **State Management:**
+  - **Server State:** TanStack Query (via custom `useQueryApi`)
+  - **Client State:** Zustand
+- **Forms:** React Hook Form + Zod
+
+### **Backend (`packages/server`)**
+- **Framework:** NestJS 10 (Modules, Controllers, Services)
+- **Language:** TypeScript
+- **Database:** MySQL
+- **ORM:** Drizzle ORM
+- **Authentication:** Passport (JWT Strategy)
+
+### **Shared (`packages/depot`)**
+- Shared TypeScript types, enums, and constants.
+- Consumed by both client and server to ensure type safety.
+
+---
+
+## 📂 Project Structure
+
+```bash
+.
+├── packages/
+│   ├── client/    # Next.js Frontend
+│   ├── server/    # NestJS Backend + DB Schema
+│   └── depot/     # Shared Code (Types, Enums, Consts)
+├── docker-compose.*.yml  # Docker orchestration
+└── pnpm-workspace.yaml   # Monorepo configuration
+```
+
+---
+
+## 🚀 Getting Started (Local Development)
+
+### 1. Install Dependencies
+```bash
+pnpm install
+```
+
+### 2. Environment Setup
+Copy the example environment file and configure it:
+```bash
+cp .env.example .env
+```
+
+### 3. Build Shared Library
+The `depot` package must be built before starting the apps:
+```bash
+pnpm build
+```
+
+### 4. Start Development Server
+This runs client, server, and depot (in watch mode) concurrently:
+```bash
+pnpm dev
+```
+- **Frontend:** http://localhost:3000
+- **Backend:** http://localhost:3001
+
+---
+
+## 🗄️ Database Management (Drizzle ORM)
+
+All database commands are run from the root using `pnpm`:
+
+```bash
+pnpm migrate          # Run pending migrations
+pnpm generate         # Generate new migrations from schema changes
+pnpm push             # Push schema changes directly to DB (Prototyping only)
+```
+
+Schema definition location: `packages/server/src/db/schema`
+
+---
+
+## 🐳 Dockerized Stacks
+
+The project includes a comprehensive Docker setup for infrastructure and deployment.
 
 | Compose file | Role |
 | --- | --- |
@@ -11,34 +97,27 @@
 | `docker-compose.stack.yml` | Convenience wrapper that extends and launches every service in one go |
 | `docker-compose.prod.yml` | Production-ready bundle (client + backend + nginx + certbot) with network isolation |
 
-Each compose file can be started independently, but they all communicate over two isolated bridges:
+### Quick Start with Docker
 
-- `scspace-infra-network`: database/cache network (created when `docker-compose.infra.yml` is up)
-- `scspace-internal-network`: application network for `client ↔ nginx ↔ backend`
+1. **Initialize Network:**
+   ```bash
+   pnpm docker:network:init
+   ```
 
-Create the internal network once before running the app services:
+2. **Start Infrastructure & Apps:**
+   ```bash
+   pnpm docker:infra:up      # MySQL + Redis
+   pnpm docker:server:up     # NestJS Backend
+   pnpm docker:client:up     # Next.js Frontend
+   pnpm docker:edge:up       # Nginx Proxy
+   ```
 
-```bash
-pnpm docker:network:init
-```
+3. **Stop Everything:**
+   ```bash
+   pnpm docker:stack:down
+   ```
 
-### Quick start
-
-```bash
-pnpm docker:infra:up      # spins up MySQL + Redis + network
-pnpm docker:server:up     # builds & runs the NestJS container
-pnpm docker:client:up     # builds & runs the Next.js container
-pnpm docker:edge:up       # exposes 80/443 and proxies to the app
-```
-
-Bring down individual layers with the matching `docker:*:down` script, or stop everything via:
-
-```bash
-pnpm docker:stack:up      # launches infra + server + client + edge
-pnpm docker:stack:down    # stops the entire stack
-```
-
-### Environment variables
+### Environment Variables (Docker)
 
 The containers read from the root `.env`, but a few docker-only overrides are available:
 
@@ -49,12 +128,12 @@ The containers read from the root `.env`, but a few docker-only overrides are av
 | `SERVER_DB_HOST` | `scspace-mysql` | Hostname the server uses to reach MySQL |
 | `NEXT_PUBLIC_API_URL` | `http://scspace-nginx/api` | API endpoint client containers call |
 | `NGINX_CONFIG` | `./infra/nginx/nginx.local.conf` | Which nginx config to mount (swap to prod in deployment) |
-| `NGINX_CERT_DIR` | `./infra/certbot/conf` | Shared Let's Encrypt configuration volume |
-| `NGINX_CERT_WEBROOT` | `./infra/certbot/www` | Webroot served for ACME HTTP-01 challenges |
 
-When running the edge proxy, swap in `infra/nginx/nginx.prod.conf` and set `NGINX_CERT_DIR` to your real LetsEncrypt path.
+---
 
-## Infra scripts (init, update, deploy)
+## 📜 Infra Scripts
+
+Scripts for initialization and deployment updates are located in `scspace/infra/script`.
 
 ```bash
 cd scspace/infra/script
