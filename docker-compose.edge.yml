@@ -14,7 +14,7 @@ services:
       /bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'
     volumes:
       - type: bind
-        source: ${NGINX_CONFIG:-./infra/nginx/nginx.local.conf}
+        source: ${NGINX_CONFIG:-./infra/nginx/nginx.prod.conf}
         target: /etc/nginx/nginx.conf
         read_only: true
       - type: bind
