@@ -22,10 +22,10 @@ services:
       service: client
     depends_on:
       - server
-  edge:
+  nginx:
     extends:
       file: docker-compose.edge.yml
-      service: edge
+      service: nginx
     depends_on:
       - client
       - server
@@ -34,7 +34,7 @@ services:
       file: docker-compose.edge.yml
       service: certbot
     depends_on:
-      - edge
+      - nginx
 
 networks:
   scspace-internal-network:
