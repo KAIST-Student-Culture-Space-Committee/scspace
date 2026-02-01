@@ -6,3 +6,5 @@ db_venv
 packages/server/src/db/migrations/*
 .DS_Store
 .idea
+
+AGENTS.*
