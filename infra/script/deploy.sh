@@ -17,9 +17,9 @@ pnpm docker:network:init
 STACK_FILE="infra/compose/docker-compose.stack.yml"
 
 echo "[deploy] building stack images"
-docker compose -f "$STACK_FILE" build --pull
+docker compose --env-file .env -f "$STACK_FILE" build --pull
 
 echo "[deploy] starting stack"
-docker compose -f "$STACK_FILE" up -d
+docker compose --env-file .env -f "$STACK_FILE" up -d
 
 echo "[deploy] done"
