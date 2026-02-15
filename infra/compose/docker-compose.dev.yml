@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: scspace-mysql
+    restart: always
+    env_file:
+      - ../../.env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PWD}
+      MYSQL_DATABASE: ${MYSQL_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PWD}
+      TZ: Asia/Seoul
+    command: >-
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ../db/my.cnf:/etc/mysql/conf.d/override.cnf:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - scspace-infra-network
+
+  redis:
+    image: redis:7
+    container_name: scspace-redis
+    restart: always
+    env_file:
+      - ../../.env
+    environment:
+      REDIS_PASSWORD: ${REDIS_PWD}
+    command: redis-server --requirepass ${REDIS_PWD}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PWD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - scspace-infra-network
+
+  nginx:
+    image: nginx:1.27
+    container_name: scspace-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: ../nginx/nginx.local.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - scspace-internal-network
+
+networks:
+  scspace-internal-network:
+    external: true
+    name: scspace-internal-network
+  scspace-infra-network:
+    external: true
+    name: scspace-infra-network
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local

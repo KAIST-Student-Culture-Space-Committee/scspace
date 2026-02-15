@@ -6,7 +6,7 @@ services:
     container_name: scspace-mysql
     restart: always
     env_file:
-      - .env
+      - ../../.env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PWD}
       MYSQL_DATABASE: ${MYSQL_NAME}
@@ -18,8 +18,8 @@ services:
       --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-      - ./infra/db/my.cnf:/etc/mysql/conf.d/override.cnf:ro
+      - ../db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ../db/my.cnf:/etc/mysql/conf.d/override.cnf:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s

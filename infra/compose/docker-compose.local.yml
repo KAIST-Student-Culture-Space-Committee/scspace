@@ -6,7 +6,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - ../nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
     environment:
       - BASIC_URL="http://localhost"
     extra_hosts:
@@ -18,7 +18,7 @@ services:
     image: mysql:latest
     container_name: scspace-mysql-container
     env_file:
-      - .env
+      - ../../.env
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PWD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -30,8 +30,8 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # UTF-8 인코딩 설정
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./my.cnf:/etc/mysql/my.cnf
+      - ../db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../db/my.cnf:/etc/mysql/my.cnf
     networks:
       - scspace_network
 

@@ -14,7 +14,7 @@ pnpm install --frozen-lockfile
 echo "[deploy] ensuring docker networks exist"
 pnpm docker:network:init
 
-STACK_FILE="docker-compose.stack.yml"
+STACK_FILE="infra/compose/docker-compose.stack.yml"
 
 echo "[deploy] building stack images"
 docker compose -f "$STACK_FILE" build --pull

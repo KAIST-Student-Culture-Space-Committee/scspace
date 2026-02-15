@@ -4,12 +4,12 @@ services:
   client:
     container_name: scspace-client
     build:
-      context: .
+      context: ../..
       dockerfile: packages/client/Dockerfile
     image: scspace-client:latest
     restart: unless-stopped
     env_file:
-      - .env
+      - ../../.env
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}

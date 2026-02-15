@@ -4,12 +4,12 @@ services:
   server:
     container_name: scspace-server
     build:
-      context: .
+      context: ../..
       dockerfile: packages/server/Dockerfile
     image: scspace-server:latest
     restart: unless-stopped
     env_file:
-      - .env
+      - ../../.env
     environment:
       NODE_ENV: production
       SERVER_PORT: ${SERVER_PORT:-3001}
@@ -19,7 +19,7 @@ services:
     expose:
       - "${SERVER_PORT:-3001}"
     volumes:
-      - ./packages/server/uploads:/workspace/packages/server/uploads
+      - ../../packages/server/uploads:/workspace/packages/server/uploads
     networks:
       - scspace-internal-network
       - scspace-infra-network

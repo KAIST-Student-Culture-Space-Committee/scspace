@@ -1,142 +1,140 @@
-# SCSpace Monorepo
+# scspace-split
 
-SCSpace is a full-stack monorepo application for managing space reservations, rentals, and community features.
-It is built with **Next.js 15** (Frontend) and **NestJS** (Backend), using **pnpm workspaces** for package management.
+Monorepo for SCSpace services.
 
-## 🛠 Tech Stack
+- `packages/client`: Next.js application
+- `packages/server`: NestJS API + Drizzle schema/migrations
+- `packages/depot`: shared TypeScript package
 
-### **Frontend (`packages/client`)**
-- **Framework:** Next.js 15 (App Router)
-- **Language:** TypeScript
-- **Styling:** Chakra UI + Emotion
-- **State Management:**
-  - **Server State:** TanStack Query (via custom `useQueryApi`)
-  - **Client State:** Zustand
-- **Forms:** React Hook Form + Zod
+## Repository Layout
 
-### **Backend (`packages/server`)**
-- **Framework:** NestJS 10 (Modules, Controllers, Services)
-- **Language:** TypeScript
-- **Database:** MySQL
-- **ORM:** Drizzle ORM
-- **Authentication:** Passport (JWT Strategy)
-
-### **Shared (`packages/depot`)**
-- Shared TypeScript types, enums, and constants.
-- Consumed by both client and server to ensure type safety.
-
----
-
-## 📂 Project Structure
-
-```bash
+```text
 .
+├── infra/
+│   ├── compose/              # docker compose definitions
+│   │   ├── docker-compose.infra.yml
+│   │   ├── docker-compose.server.yml
+│   │   ├── docker-compose.client.yml
+│   │   ├── docker-compose.dev.yml
+│   │   ├── docker-compose.edge.yml
+│   │   ├── docker-compose.local.yml
+│   │   └── docker-compose.stack.yml
+│   ├── db/                   # mysql init/config
+│   ├── nginx/                # nginx configs
+│   └── script/               # deployment scripts
 ├── packages/
-│   ├── client/    # Next.js Frontend
-│   ├── server/    # NestJS Backend + DB Schema
-│   └── depot/     # Shared Code (Types, Enums, Consts)
-├── docker-compose.*.yml  # Docker orchestration
-└── pnpm-workspace.yaml   # Monorepo configuration
+└── package.json
 ```
 
----
+## Prerequisites
 
-## 🚀 Getting Started (Local Development)
+- Node.js (LTS)
+- `pnpm` 10.x
+- Docker + Docker Compose V2
 
-### 1. Install Dependencies
+## Local Development
+
+1. Install dependencies.
+
 ```bash
 pnpm install
 ```
 
-### 2. Environment Setup
-Copy the example environment file and configure it:
+2. Create env file.
+
 ```bash
 cp .env.example .env
 ```
 
-### 3. Build Shared Library
-The `depot` package must be built before starting the apps:
+3. Build workspace packages.
+
 ```bash
 pnpm build
 ```
 
-### 4. Start Development Server
-This runs client, server, and depot (in watch mode) concurrently:
+4. Start dev processes.
+
 ```bash
 pnpm dev
 ```
-- **Frontend:** http://localhost:3000
-- **Backend:** http://localhost:3001
 
----
+Default endpoints:
 
-## 🗄️ Database Management (Drizzle ORM)
+- Client: `http://localhost:3000`
+- Server: `http://localhost:3001`
 
-All database commands are run from the root using `pnpm`:
-
-```bash
-pnpm migrate          # Run pending migrations
-pnpm generate         # Generate new migrations from schema changes
-pnpm push             # Push schema changes directly to DB (Prototyping only)
-```
-
-Schema definition location: `packages/server/src/db/schema`
-
----
-
-## 🐳 Dockerized Stacks
-
-The project includes a comprehensive Docker setup for infrastructure and deployment.
-
-| Compose file | Role |
-| --- | --- |
-| `docker-compose.infra.yml` | MySQL + Redis with persistent volumes on the shared `scspace-infra-network` |
-| `docker-compose.server.yml` | NestJS server image built from `packages/server/Dockerfile` |
-| `docker-compose.client.yml` | Next.js client image built from `packages/client/Dockerfile` |
-| `docker-compose.edge.yml` | Nginx edge proxy (plus automated Certbot renewals) that fronts the app network |
-| `docker-compose.stack.yml` | Convenience wrapper that extends and launches every service in one go |
-| `docker-compose.prod.yml` | Production-ready bundle (client + backend + nginx + certbot) with network isolation |
-
-### Quick Start with Docker
-
-1. **Initialize Network:**
-   ```bash
-   pnpm docker:network:init
-   ```
-
-2. **Start Infrastructure & Apps:**
-   ```bash
-   pnpm docker:infra:up      # MySQL + Redis
-   pnpm docker:server:up     # NestJS Backend
-   pnpm docker:client:up     # Next.js Frontend
-   pnpm docker:edge:up       # Nginx Proxy
-   ```
-
-3. **Stop Everything:**
-   ```bash
-   pnpm docker:stack:down
-   ```
-
-### Environment Variables (Docker)
-
-The containers read from the root `.env`, but a few docker-only overrides are available:
-
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `SERVER_APP_PORT` | `3001` | Internal NestJS port (exposed only to Docker networks) |
-| `CLIENT_APP_PORT` | `3000` | Internal Next.js port |
-| `SERVER_DB_HOST` | `scspace-mysql` | Hostname the server uses to reach MySQL |
-| `NEXT_PUBLIC_API_URL` | `http://scspace-nginx/api` | API endpoint client containers call |
-| `NGINX_CONFIG` | `./infra/nginx/nginx.local.conf` | Which nginx config to mount (swap to prod in deployment) |
-
----
-
-## 📜 Infra Scripts
-
-Scripts for initialization and deployment updates are located in `scspace/infra/script`.
+## Database Tasks (Drizzle)
 
 ```bash
-cd scspace/infra/script
-chmod +x <script_name>.sh
-./<script_name>.sh
+pnpm generate   # generate migration SQL from schema changes
+pnpm migrate    # apply pending migrations
+pnpm push       # direct schema sync (non-production workflow)
 ```
+
+Drizzle config: `packages/server/src/db/drizzle.config.ts`
+
+## Docker Operations
+
+`stack` is the default operational flow for this repository.
+
+### Dev Infra Only (recommended for local coding)
+
+Run infrastructure + edge proxy in Docker, and run application processes with `pnpm dev`.
+
+```bash
+pnpm docker:network:init
+pnpm docker:dev:up
+pnpm dev
+```
+
+For this flow, nginx forwards:
+
+- `http://localhost/api/*` -> `http://host.docker.internal:3001`
+- `http://localhost/*` -> `http://host.docker.internal:3000`
+
+1. Initialize shared networks once per host.
+
+```bash
+pnpm docker:network:init
+```
+
+2. Start full stack.
+
+```bash
+pnpm docker:stack:up
+```
+
+3. Update selected services only.
+
+```bash
+docker compose -f infra/compose/docker-compose.stack.yml up -d --build server
+docker compose -f infra/compose/docker-compose.stack.yml up -d --build client nginx
+```
+
+4. Stop stack.
+
+```bash
+pnpm docker:stack:down
+```
+
+### Compose Files
+
+- `infra/compose/docker-compose.stack.yml`: full stack aggregator via `extends`
+- `infra/compose/docker-compose.infra.yml`: MySQL + Redis
+- `infra/compose/docker-compose.server.yml`: API service build/run
+- `infra/compose/docker-compose.client.yml`: Next.js service build/run
+- `infra/compose/docker-compose.dev.yml`: MySQL + Redis + local nginx for host-based `pnpm dev`
+- `infra/compose/docker-compose.edge.yml`: Nginx + Certbot
+- `infra/compose/docker-compose.local.yml`: lightweight local nginx/mysql profile
+
+## Deployment Script
+
+`infra/script/deploy.sh` performs:
+
+1. `git pull --rebase --autostash`
+2. `pnpm install --frozen-lockfile`
+3. network initialization
+4. stack build (`--pull`)
+5. stack up (`-d`)
+
+The script uses `infra/compose/docker-compose.stack.yml` as its compose entrypoint.
