@@ -25,9 +25,12 @@
     "docker:dev:clear": "dotenv -e .env.dev -- docker compose -f infra/compose/docker-compose.dev.yml down -v",
     "docker:stack:up": "dotenv -e .env -- docker compose -f infra/compose/docker-compose.stack.yml up -d --build",
     "docker:stack:down": "dotenv -e .env -- docker compose -f infra/compose/docker-compose.stack.yml down",
-    "migrate": "drizzle-kit migrate --config packages/server/src/db/drizzle.config.ts",
-    "generate": "drizzle-kit generate --config packages/server/src/db/drizzle.config.ts",
-    "push": "drizzle-kit push --config packages/server/src/db/drizzle.config.ts"
+    "migrate": "dotenv -e .env -- drizzle-kit migrate --config packages/server/src/db/drizzle.config.ts",
+    "migrate:dev": "dotenv -e .env.dev -- drizzle-kit migrate --config packages/server/src/db/drizzle.config.ts",
+    "generate": "dotenv -e .env -- drizzle-kit generate --config packages/server/src/db/drizzle.config.ts",
+    "generate:dev": "dotenv -e .env.dev -- drizzle-kit generate --config packages/server/src/db/drizzle.config.ts",
+    "push": "dotenv -e .env -- drizzle-kit push --config packages/server/src/db/drizzle.config.ts",
+    "push:dev": "dotenv -e .env.dev -- drizzle-kit push --config packages/server/src/db/drizzle.config.ts"
   },
   "keywords": [],
   "author": "",
