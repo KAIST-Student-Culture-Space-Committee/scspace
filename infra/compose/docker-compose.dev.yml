@@ -5,8 +5,6 @@ services:
     extends:
       file: docker-compose.infra.yml
       service: mysql
-    env_file:
-      - ../../.env.dev
     ports:
       - "${MYSQL_PORT:-3306}:3306"
 
@@ -14,8 +12,6 @@ services:
     extends:
       file: docker-compose.infra.yml
       service: redis
-    env_file:
-      - ../../.env.dev
     ports:
       - "${REDIS_PORT:-6379}:6379"
 
