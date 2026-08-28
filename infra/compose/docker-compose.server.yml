@@ -6,6 +6,7 @@ services:
     build:
       context: ../..
       dockerfile: packages/server/Dockerfile
+      target: runner
     image: scspace-server:latest
     restart: unless-stopped
     env_file:
