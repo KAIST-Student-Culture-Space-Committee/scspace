@@ -2,11 +2,18 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+TIME_CHECK_SCRIPT="$ROOT_DIR/infra/script/check-host-time.sh"
 
 cd "$ROOT_DIR"
 
+echo "[deploy] checking host clock before update"
+bash "$TIME_CHECK_SCRIPT"
+
 echo "[deploy] pulling latest changes"
 git pull --rebase --autostash
+
+echo "[deploy] checking host clock with updated policy"
+bash "$TIME_CHECK_SCRIPT"
 
 echo "[deploy] installing dependencies"
 pnpm install --frozen-lockfile
