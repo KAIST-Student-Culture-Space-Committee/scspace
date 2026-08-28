@@ -12,6 +12,10 @@ bash "$TIME_CHECK_SCRIPT"
 echo "[deploy] pulling latest changes"
 git pull --rebase --autostash
 
+echo "[deploy] updating submodules"
+git submodule sync --recursive
+git submodule update --init --recursive
+
 echo "[deploy] checking host clock with updated policy"
 bash "$TIME_CHECK_SCRIPT"
 
