@@ -239,6 +239,21 @@ importers:
       cron:
         specifier: ^4.3.3
         version: 4.3.3
+      class-validator:
+        specifier: ^0.14.2
+        version: 0.14.2
+      cookie-parser:
+        specifier: ^1.4.7
+        version: 1.4.7
+      dotenv:
+        specifier: ^17.2.1
+        version: 17.2.1
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(mysql2@3.14.3)
+      express:
+        specifier: ^4.19.2
+        version: 4.19.2
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -248,6 +263,9 @@ importers:
       mysql2:
         specifier: ^3.11.0
         version: 3.14.1
+      multer:
+        specifier: ^1.4.4-lts.1
+        version: 1.4.4-lts.1
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
