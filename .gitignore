@@ -3,6 +3,7 @@ node_modules
 .env.dev
 exported_csv_files
 processed_csv_files
+backups/
 db_venv
 packages/server/src/db/migrations/*
 .DS_Store
