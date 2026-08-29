@@ -66,9 +66,9 @@ Updated: 2026-08-24
 - Committee duty hours are Monday through Wednesday 19:00–21:00 and Thursday 21:00–23:00 in `Asia/Seoul`.
 - Users do not create rentals directly. A manager registers the rental during the on-site handover after selecting the borrower by student number.
 - Managers can create, view, and edit all rental records. A user can view their own rental records.
-- The lending manager is recorded as `approverId`; the return-confirming manager is recorded as `returnApproverId`.
+- The lending manager is recorded as `rentalWorkerId`; the return-confirming manager is recorded as `returnWorkerId`.
 - Rental records include borrower, organization, contact and emergency contact, purpose and location, deadline, goods, quantity, and operational status.
-- Organization is stored as the existing free-text `groupName`, the manager selects the deadline, and the return checklist is a required UI confirmation rather than a persisted audit record.
+- Organization is stored by the existing `organizationId` foreign key. The manager selects the deadline, and the return checklist is a required UI confirmation rather than a persisted audit record.
 - Overdue and overdue-contacted labels are derived from the active rental deadline and recorded contact time. Cancellation is a soft status transition.
 - Inventory changes are manager-only.
 - Lottery applications are created and deleted by the verified organization's delegator.
